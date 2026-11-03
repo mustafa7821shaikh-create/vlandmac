@@ -432,6 +432,55 @@ end
 endmodule
 
 
+module sync_updown_counter_3bit_tb;
+
+reg clk;
+reg reset;
+reg mode;
+wire [2:0] count;
+
+// Instantiate Device Under Test (DUT)
+sync_updown_counter_3bit DUT (
+    .clk(clk),
+    .reset(reset),
+    .mode(mode),
+    .count(count)
+);
+
+// Generation of Clock signal (Period = 10ns)
+always #5 clk = ~clk;
+
+initial begin
+
+    // Initialize Inputs
+    clk = 0;
+    reset = 0;
+    mode = 0;
+
+    #12;
+
+    // Release reset to start UP counting
+    reset = 1;
+    #90;
+
+    // Let it cycle through all 8 up states (0 to 7)
+
+    // Change mode to DOWN counting
+    mode = 1;
+    #90;
+
+    // Let it cycle through down states (7 down to 0)
+
+    // Apply reset during runtime to verify safety clear
+    reset = 0;
+    #10;
+
+    $stop; // End Simulation
+
+end
+
+endmodule
+
 
 6)Aim To design, implement, and simulate a 4-bit Johnson Counter using Verilog HDL and verify its unique circulating state transitions using a testbench in Quartus Prime
 
