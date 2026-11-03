@@ -1,0 +1,501 @@
+
+
+1)Aim
+To design, implement, and simulate a 4:1 Multiplexer (MUX) using Verilog HDL and verify its operation using a testbench in Quartus Prime and QuestaSim.
+
+Verilog Code (Design Module) 
+module mux4to1 (
+    input I0,
+    input I1,
+    input I2,
+    input I3,
+    input S1,
+    input S0,
+    output reg Y
+);
+
+always @(*) begin
+    case ({S1, S0})
+        2'b00: Y = I0;
+        2'b01: Y = I1;
+        2'b10: Y = I2;
+        2'b11: Y = I3;
+        default: Y = 1'b0;
+    endcase
+end
+
+endmodule
+
+
+Testbench
+`timescale 1ns/1ps
+
+module mux4to1_tb;
+
+reg I0;
+reg I1;
+reg I2;
+reg I3;
+reg S1;
+reg S0;
+
+wire Y;
+
+mux4to1 uut(
+.I0(I0),
+.I1(I1),
+.I2(I2),
+.I3(I3),
+.S1(S1),
+.S0(S0),
+.Y(Y)
+);
+
+initial
+begin
+
+I0=0; I1=1; I2=0; I3=1;
+
+S1=0; S0=0;
+#10;
+
+S1=0; S0=1;
+#10;
+
+S1=1; S0=0;
+#10;
+
+S1=1; S0=1;
+#10;
+
+$stop;
+
+end
+
+endmodule
+
+
+2)Aim
+To design, implement, and simulate a Full adder using two half adders Verilog HDL and verify its operation using a testbench in Quartus Prime and QuestaSim.
+
+Verilog Code (Design Module) 
+A).Half Adder
+Save this file as half_adder.v.
+module half_adder(
+    input A,
+    input B,
+    output Sum,
+    output Carry
+);
+
+assign Sum   = A ^ B;
+assign Carry = A & B;
+
+endmodule
+
+
+
+
+
+B).Full Adder Using Two Half Adders
+Save this file as full_adder.v.
+module full_adder(
+    input A,
+    input B,
+    input Cin,
+    output Sum,
+    output Cout
+);
+
+wire S1;
+wire C1;
+wire C2;
+
+// First Half Adder
+half_adder HA1(
+    .A(A),
+    .B(B),
+    .Sum(S1),
+    .Carry(C1)
+);
+
+// Second Half Adder
+half_adder HA2(
+    .A(S1),
+    .B(Cin),
+    .Sum(Sum),
+    .Carry(C2)
+);
+
+// Final Carry
+assign Cout = C1 | C2;
+
+endmodule
+
+
+
+
+
+
+
+Testbench
+Save this file as full_adder_tb.v.
+module full_adder_tb;
+
+reg A;
+reg B;
+reg Cin;
+wire Sum;
+wire Cout;
+
+// Instantiate Full Adder
+full_adder DUT(
+    .A(A),
+    .B(B),
+    .Cin(Cin),
+    .Sum(Sum),
+    .Cout(Cout)
+);
+initial begin
+$dispaly(“A,B,Cin,Sum,Cout”);
+
+    $monitor("%b %b %b %b %b",  A, B, Cin, Sum, Cout);
+    A = 0; B = 0; Cin = 0;    #10;
+    A = 0; B = 0; Cin = 1;    #10;
+    A = 0; B = 1; Cin = 0;    #10;
+    A = 0; B = 1; Cin = 1;    #10;
+    A = 1; B = 0; Cin = 0;    #10;
+    A = 1; B = 0; Cin = 1;    #10;
+    A = 1; B = 1; Cin = 0;    #10;
+    A = 1; B = 1; Cin = 1;    #10;
+    $finish;
+end
+endmodule
+
+
+3)Aim
+To design, implement, and simulate a 4-bit Arithmetic Logic Unit (ALU) using Verilog HDL and verify its operation using a testbench in Quartus Prime.
+Verilog Code (Design Module) 
+module alu_4bit (
+    input  [3:0] A,
+    input  [3:0] B,
+    input  [3:0] Sel,
+    output [3:0] Result,
+    output Carry
+);
+
+wire [4:0] temp;
+
+assign temp =
+       (Sel == 4'b0000) ? {1'b0, A + B}  :
+       (Sel == 4'b0001) ? {1'b0, A - B}  :
+       (Sel == 4'b0010) ? {1'b0, A & B}  :
+       (Sel == 4'b0011) ? {1'b0, A | B}  :
+       (Sel == 4'b0100) ? {1'b0, A ^ B}  :
+       (Sel == 4'b0101) ? {1'b0, ~(A & B)} :
+       (Sel == 4'b0110) ? {1'b0, ~(A | B)} :
+       (Sel == 4'b0111) ? {1'b0, ~(A ^ B)} :
+       (Sel == 4'b1000) ? {1'b0, A} :
+       (Sel == 4'b1001) ? {1'b0, B} :
+       (Sel == 4'b1010) ? {1'b0, A + 1} :
+       (Sel == 4'b1011) ? {1'b0, A - 1} :
+       (Sel == 4'b1100) ? {1'b0, A << 1} :
+       (Sel == 4'b1101) ? {1'b0, A >> 1} :
+       (Sel == 4'b1110) ? {1'b0, B + 1} :
+                          {1'b0, B >> 1};
+
+assign Result = temp[3:0];
+assign Carry  = temp[4];
+
+endmodule
+
+
+Testbench
+Save this file as alu_4bit_tb.v.
+module alu_4bit_tb;
+    reg [3:0] A;
+    reg [3:0] B;
+    reg [3:0] Sel;
+    wire [3:0] Result;
+    wire Carry;
+
+    // Instantiate DUT
+    alu_4bit DUT (
+        .A(A),
+        .B(B),
+        .Sel(Sel),
+        .Result(Result),
+        .Carry(Carry)
+    );
+    initial begin
+
+        // ADD: 5 + 3 = 8
+        A = 4'b0101;
+        B = 4'b0011;
+        Sel = 4'b0000;
+        #10;
+
+        // SUB: 8 - 3 = 5
+        A = 4'b1000;
+        B = 4'b0011;
+        Sel = 4'b0001;
+        #10;
+
+        // AND
+        A = 4'b1010;
+        B = 4'b1100;
+        Sel = 4'b0010;
+        #10;
+
+        // OR
+        Sel = 4'b0011;
+        #10;
+
+        // XOR
+        Sel = 4'b0100;
+        #10;
+
+        // NAND
+        Sel = 4'b0101;
+        #10;
+
+        // NOR
+        Sel = 4'b0110;
+        #10;
+
+        // XNOR
+        Sel = 4'b0111;
+        #10;
+
+        // Pass A
+        Sel = 4'b1000;
+        #10;
+
+        // Pass B
+        Sel = 4'b1001;
+        #10;
+
+        // A + 1
+        A = 4'b1111;
+        Sel = 4'b1010;
+        #10;
+
+        // A - 1
+        A = 4'b0101;
+        Sel = 4'b1011;
+        #10;
+
+        // A << 1
+        A = 4'b1010;
+        Sel = 4'b1100;
+        #10;
+
+        // A >> 1
+        Sel = 4'b1101;
+        #10;
+
+        // B + 1
+        B = 4'b1111;
+        Sel = 4'b1110;
+        #10;
+
+        // B >> 1
+        Sel = 4'b1111;
+        #10;
+
+        $stop;
+    end
+
+endmodule
+
+4)Aim To design and simulate a D Flip-Flop and T Flip-Flop using Verilog HDL behavioural modelling and verify its operation using Quartus Prime.Objective After completing this experiment, students will be able to: • To understand the working principle of a D Flip-Flop and T-Flip-Flop.  • To implement a D Flip-Flop and T-Flip-Flop using Verilog HDL.  • To understand behavioural modelling.  • To understand hold and toggle operations.  • To simulate the circuit using Quartus Prime.  • To verify the output using the truth table
+
+
+module jk_flipflop (
+    input J,
+    input K,
+    input CLK,
+    input RESET,
+    output reg Q
+);
+
+always @(posedge CLK or posedge RESET)
+begin
+    if (RESET)
+        Q <= 1'b0;
+    else
+    begin
+        case ({J, K})
+            2'b00: Q <= Q;     // No change
+            2'b01: Q <= 1'b0;  // Reset
+            2'b10: Q <= 1'b1;  // Set
+            2'b11: Q <= ~Q;    // Toggle
+        endcase
+    end
+end
+
+endmodule
+
+
+module jk_flipflop_tb;
+
+reg J;
+reg K;
+reg CLK;
+reg RESET;
+wire Q;
+
+// Instantiate the JK flip-flop
+jk_flipflop uut (
+    .J(J),
+    .K(K),
+    .CLK(CLK),
+    .RESET(RESET),
+    .Q(Q)
+);
+
+// Clock generation
+always #5 CLK = ~CLK;
+
+// Test sequence
+initial begin
+
+    // Initial values
+    CLK = 1'b0;
+    J = 1'b0;
+    K = 1'b0;
+    RESET = 1'b1;
+
+    // Reset the flip-flop
+    #10;
+    RESET = 1'b0;
+
+    // J=0, K=0 : No change
+    J = 1'b0;
+    K = 1'b0;
+    #10;
+
+    // J=0, K=1 : Reset
+    J = 1'b0;
+    K = 1'b1;
+    #10;
+
+    // J=1, K=0 : Set
+    J = 1'b1;
+    K = 1'b0;
+    #10;
+
+    // J=1, K=1 : Toggle
+    J = 1'b1;
+    K = 1'b1;
+    #10;
+
+    // Toggle again
+    J = 1'b1;
+    K = 1'b1;
+    #10;
+
+    // Stop simulation
+    $stop;
+
+end
+
+endmodule
+
+
+
+
+5)Aim To design, implement, and simulate a 3-bit Up/Down Synchronous Counter using Verilog HDL and verify its behavior across both counting modes using a testbench in Quartus Prime
+ Verilog code
+module sync_updown_counter_3bit (
+    input clk,
+    input reset,
+    input mode, // 0 = Up, 1 = Down
+    output reg [2:0] count
+);
+
+always @(posedge clk or negedge reset)
+begin
+    if (!reset)
+    begin
+        count <= 3'b000;
+    end
+    else
+    begin
+        if (mode == 1'b0)
+            count <= count + 1'b1; // Up counting
+        else
+            count <= count - 1'b1; // Down counting
+    end
+end
+
+endmodule
+
+
+
+6)Aim To design, implement, and simulate a 4-bit Johnson Counter using Verilog HDL and verify its unique circulating state transitions using a testbench in Quartus Prime
+
+module johnson_counter_4bit (
+    input clk,
+    input reset,
+    output reg [3:0] Q
+);
+
+always @(posedge clk or posedge reset)
+begin
+    if (reset)
+    begin
+        Q <= 4'b0000;
+    end
+    else
+    begin
+        // Shift right and provide inverted feedback
+        Q[3] <= Q[2];
+        Q[2] <= Q[1];
+        Q[1] <= Q[0];
+        Q[0] <= ~Q[3];
+    end
+end
+
+endmodule
+
+
+
+
+test bench 
+module johnson_counter_3bit_tb;
+
+reg clk;
+reg reset;
+wire [3:0] Q;
+
+// Instantiate Device Under Test (DUT)
+johnson_counter_4bit DUT (
+    .clk(clk),
+    .reset(reset),
+    .Q(Q)
+);
+
+// Generation of Clock signal (Period = 10ns)
+always #5 clk = ~clk;
+
+initial begin
+
+    // Initialize Inputs
+    clk = 0;
+    reset = 1;
+
+    // Apply active-high reset
+    #12;
+
+    // Release reset to launch the Johnson cycle
+    reset = 0;
+
+    // Allow ample time to watch multiple full 8-state cycles
+    #100;
+
+    $stop; // End Simulation
+
+end
+
+endmodule
