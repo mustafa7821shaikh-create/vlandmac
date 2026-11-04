@@ -1,0 +1,211 @@
+ experiment no 2 led interfacing
+#include <reg51.h>
+
+// LED Connections - Port 0
+sbit LED0 = P0^0;
+sbit LED1 = P0^1;
+sbit LED2 = P0^2;
+sbit LED3 = P0^3;
+sbit LED4 = P0^4;
+sbit LED5 = P0^5;
+sbit LED6 = P0^6;
+sbit LED7 = P0^7;
+
+// Switch Connections - Port 1
+sbit SW0 = P1^0;
+sbit SW1 = P1^1;
+sbit SW2 = P1^2;
+sbit SW3 = P1^3;
+sbit SW4 = P1^4;
+sbit SW5 = P1^5;
+sbit SW6 = P1^6;
+sbit SW7 = P1^7;
+
+void main(void)
+{
+    P0 = 0x00;
+    P1 = 0xff;
+
+    while(1)
+    {
+        if(SW0==1)
+            LED0=1;
+        else
+            LED0=0;
+
+        if(SW1==1)
+            LED1=1;
+        else
+            LED1=0;
+
+        if(SW2==1)
+            LED2=1;
+        else
+            LED2=0;
+
+        if(SW3==1)
+            LED3=1;
+        else
+            LED3=0;
+
+        if(SW4==1)
+            LED4=1;
+        else
+            LED4=0;
+
+        if(SW5==1)
+            LED5=1;
+        else
+            LED5=0;
+
+        if(SW6==1)
+            LED6=1;
+        else
+            LED6=0;
+
+        if(SW7==1)
+            LED7=1;
+        else
+            LED7=0;
+    }
+}
+
+
+experiment no . 3 ( 7 segment display interfacing)
+#include <reg51.h>
+
+void display(unsigned char byte);
+void delay(unsigned int time);
+
+void main(void)
+{
+    P0 = 0x00;
+    P1 = 0xff;
+
+    while(1)
+    {
+        display(0xC0);  // Display 0
+        display(0xF9);  // Display 1
+        display(0xA4);  // Display 2
+        display(0xB0);  // Display 3
+        display(0x99);  // Display 4
+        display(0x92);  // Display 5
+        display(0x82);  // Display 6
+        display(0xF8);  // Display 7
+        display(0x80);  // Display 8
+        display(0x90);  // Display 9
+        display(0x88);  // Display A
+        display(0x83);  // Display B
+        display(0xC6);  // Display C
+        display(0xA1);  // Display D
+        display(0x86);  // Display E
+        display(0x8E);  // Display F
+    }
+}
+
+void display(unsigned char byte)
+{
+    P0 = byte;
+    delay(200);
+}
+
+void delay(unsigned int time)
+{
+    int i,j;
+
+    for(i=0; i<time; i++)
+    {
+        for(j=0; j<1000; j++);
+    }
+}
+
+
+
+experiment no. 4   interfacing relay and buzzer
+#include <reg51.h>
+
+sbit Relay = P2^0;
+sbit Buzzer = P2^1;
+sbit Relay_SW = P2^2;
+sbit Buzz_SW = P2^3;
+
+void main()
+{
+    P2 = 0xFC;
+
+    Relay = 0;
+    Buzzer = 0;
+
+    while(1)
+    {
+        if(Relay_SW == 0)
+        {
+            Relay = 0;
+            Buzzer = 1;
+        }
+
+        if(Buzz_SW == 0)
+        {
+            Buzzer = 0;
+            Relay = 1;
+        }
+    }
+}
+
+experiment no 5 waveform generation  using dac
+#include <reg51.h>
+
+void delay()
+{
+    unsigned int i;
+
+    for(i = 0; i < 255; i++);
+}
+
+void main()
+{
+    unsigned char i;
+
+    while(1)
+    {
+        for(i = 0; i < 255; i++)
+        {
+            P1 = i;
+            delay();
+        }
+    }
+}
+
+
+
+experiment no 6 stepper motor
+
+#include <reg51.h>
+
+void delay()
+{
+    TMOD = 0x01;
+    TH0 = 0xFC;
+    TL0 = 0x66;
+    TR0 = 1;
+
+    while(TF0 == 0);
+
+    TR0 = 0;
+    TF0 = 0;
+}
+
+void main()
+{
+    unsigned char step[4] = {0x09, 0x0C, 0x06, 0x03};
+    int i;
+
+    while(1)
+    {
+        for(i = 0; i < 4; i++)
+        {
+            P1 = step[i];
+            delay();
+        }
+    }
+}
